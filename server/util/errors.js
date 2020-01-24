@@ -18,5 +18,9 @@ export const errors =  {
     USER_NOT_FOUND: {
         errorStatusCode: 200,
         errorMessage: 'No such user',
+    },
+    USER_NOT_CORRECT: {
+        errorStatusCode: 200,
+        errorMessage: 'User name type is not correct',
     }
 }

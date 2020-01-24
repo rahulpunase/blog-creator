@@ -23,3 +23,30 @@ CHANGE COLUMN `has_logged_out` `has_logged_out` INT(1) NULL DEFAULT NULL;
 ALTER TABLE `blogs`.`user_login` 
 CHANGE COLUMN `external_auth_id` `external_auth_id` VARCHAR(250) CHARACTER SET 'latin1' NULL DEFAULT NULL AFTER `disable_date_time`;
 
+-- visit
+CREATE TABLE `blogs`.`user_login_history` (
+  `history_id` INT NOT NULL,
+  `user_agent` VARCHAR(100) NULL,
+  `location_id` INT NULL,
+  `user_login` VARCHAR(45) NULL,
+  `party_id` INT NULL,
+  `client_ip_addr` VARCHAR(45) NULL,
+  `host_name` VARCHAR(45) NULL,
+  `host_addr` VARCHAR(45) NULL,
+  `token` VARCHAR(200) NULL,
+  `is_successfully_logged_in` INT NULL,
+  `is_registering` INT NULL,
+  `is_registered_in_attempt` INT NULL,
+  `last_updated_date` DATETIME NULL,
+  `created_date` DATETIME NULL,
+  `is_logout_from_token` INT NULL,
+  `rowstate` INT NULL,
+  PRIMARY KEY (`history_id`),
+  INDEX `fk_user_login_history_1_idx` (`party_id` ASC),
+  CONSTRAINT `fk_user_login_history_1`
+    FOREIGN KEY (`party_id`)
+    REFERENCES `blogs`.`party` (`party_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+ALTER Table `blogs`.`user_login_history` AUTO_INCREMENT = 1000000;

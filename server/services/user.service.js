@@ -85,7 +85,14 @@ export class UserService {
         } else {
             // log in user
             const [user, field] = await this.getUserInfoFromPartyId(rows[0].party_id);
-            return user[0];
+            return {
+                token: this.createUserToken({
+                    party_id: user[0].party_id,
+                    username: user[0].username,
+                    email: user[0].email 
+                }),
+                user: user[0]
+            };
         }
     }
 
@@ -105,6 +112,25 @@ export class UserService {
         } else {
             return false;
         }
+    }
+    
+    createUserToken(userInfo) {
+        return jwt.sign({
+            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+            data: userInfo
+          }, 'BLOGGER');
+    }
+
+    async createUserLoginHistory(vistorInfo) {
+        // create location first
+        const [location] = await this.db.execute("INSERT INTO `blogs`.`user_login_location` (`timezone`, `timezone_offset`, `longitude`, `latitude`, `created_date`) VALUES (?,?,?,?,now())", [vistorInfo.timezone, vistorInfo.timezoneOffset, vistorInfo.longitude, vistorInfo.latitude]);
+
+        const sql = this.db.format("INSERT INTO `blogs`.`user_login_history` (`user_agent`,`location_id`,`user_login`,`party_id`, `client_ip_addr`,`host_name`,`host_addr`,`token`,`is_successfully_logged_in`,`is_registering`,`is_registered_in_attempt`, `last_updated_date`,`created_date`,`is_logout_from_token`,`rowstate`) VALUES (?,?,?,?,?,?,?,?,?,?,?, now(), now(), 0, 1)", [vistorInfo.user_agent, location.insert_id, vistorInfo.user_login, vistorInfo.party_id, vistorInfo.client_ip_addr, vistorInfo.host_name, vistorInfo.host_addr, vistorInfo.token, vistorInfo.is_successfully_logged_in, vistorInfo.is_registering, vistorInfo.is_registered_in_attempt]);
+
+        logger("=======================LOGIN ATTEMPTTED=======================");
+        logger(sql);
+
+        return await this.db.query(sql);
     }
     
 }
